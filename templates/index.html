@@ -3,11 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Simple Chat App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #messages {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            max-height: 300px;
+            overflow-y: scroll;
+        }
+        #messages p {
+            margin: 5px 0;
+        }
+        #input-container {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Chat App</h1>
-    <a href="{{ url_for('chat') }}">Enter Chat</a>
+    <h1>Simple Chat App</h1>
+    <div id="messages">
+        <!-- メッセージはここに表示されます -->
+    </div>
+    <div id="input-container">
+        <input type="text" id="message" autocomplete="off">
+        <button id="send">Send</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // 初期メッセージの取得
+            $.get('/get_messages', function(data) {
+                data.forEach(function(message) {
+                    $('#messages').append('<p>' + message + '</p>');
+                });
+            });
+
+            // メッセージ送信
+            $('#send').click(function() {
+                var message = $('#message').val();
+                if (message.trim() !== '') {
+                    $.post('/send_message', { message: message }, function(data) {
+                        if (data.result === 'success') {
+                            $('#message').val('');
+                            $('#messages').append('<p>' + message + '</p>');
+                            // スクロールを一番下に移動
+                            $('#messages').scrollTop($('#messages')[0].scrollHeight);
+                        }
+                    });
+                }
+            });
+
+            // Enterキーでメッセージ送信
+            $('#message').keypress(function(event) {
+                if (event.which === 13) {
+                    $('#send').click();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
