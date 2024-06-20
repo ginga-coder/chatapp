@@ -10,15 +10,18 @@ messages = []
 def index():
     return render_template('index.html')
 
-@app.route('/chat', methods=['GET', 'POST'])
-def chat():
-    if request.method == 'POST':
-        message = request.form['message']
-        if message.strip():  # メッセージが空でない場合のみ追加
-            if len(messages) >= 10:
-                messages.pop(0)  # 最古のメッセージを削除
-            messages.append(message)
-    return render_template('chat.html', messages=messages)
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    message = request.form['message']
+    if message.strip():  # メッセージが空でない場合のみ追加
+        if len(messages) >= 10:
+            messages.pop(0)  # 最古のメッセージを削除
+        messages.append(message)
+    return jsonify({'result': 'success'})
+
+@app.route('/get_messages', methods=['GET'])
+def get_messages():
+    return jsonify(messages)
 
 if __name__ == '__main__':
     app.run()
